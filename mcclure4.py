@@ -1,14 +1,15 @@
-# Colby McClure Homework 4
+# Colby McClure CS 330 Homework 4
+# Date: 4/26/34
 
 # Needed Imports 
 import random
 import numpy as np
 
-# Initialize the output file
-output = 'output.txt'
-
 # Initialize the scenario
-scenario = 1
+scenario = 2
+
+# Initialize the output file
+output = ['output.txt', 'output2.txt'][scenario - 1]
 
 # Initialize the trace scenario
 scenarioTrace = [True, False][scenario - 1]
@@ -38,52 +39,60 @@ transitionCount = [0 for _ in range(9)]
 
 def followAction(): 
     stateCount[Follow] += 1
-    with open(output, 'a') as f:
-        f.write('state = 1 Follow\n')
+    if scenario == 1:
+        with open(output, 'a') as f:
+            f.write('state = 1 Follow\n')
 
 def pullOutAction():
     stateCount[Pull_Out] += 1
-    with open(output, 'a') as f:
-        f.write('state = 2 Pull Out\n')
+    if scenario == 1:
+        with open(output, 'a') as f:
+            f.write('state = 2 Pull Out\n')
 
 def accelerateAction():
     stateCount[Accelerate] += 1
-    with open(output, 'a') as f:
-        f.write('state = 3 Accelerate\n')
+    if scenario == 1:
+        with open(output, 'a') as f:
+            f.write('state = 3 Accelerate\n')
 
 def pullInAheadAction():
     stateCount[Pull_In_Ahead] += 1
-    with open(output, 'a') as f:
-        f.write('state = 4 Pull In Ahead\n')
+    if scenario == 1:
+        with open(output, 'a') as f:
+            f.write('state = 4 Pull In Ahead\n')
     
 def pullInBehindAction():
     stateCount[Pull_In_Behind] += 1
-    with open(output, 'a') as f:
-        f.write('state = 5 Pull In Behind\n')
+    if scenario == 1:
+        with open(output, 'a') as f:
+            f.write('state = 5 Pull In Behind\n')
 
 def decelerateAction():
     stateCount[Decelerate] += 1
-    with open(output, 'a') as f:
-        f.write('state = 6 Decelerate\n')
+    if scenario == 1:
+        with open(output, 'a') as f:
+            f.write('state = 6 Decelerate\n')
 
 def doneAction():
     stateCount[Done] += 1
-    with open(output, 'a') as f:
-        f.write('state = 7 Done\n')
+    if scenario == 1: 
+        with open(output, 'a') as f:
+            f.write('state = 7 Done\n')
 
 iterations = [100, 1000000][scenario - 1]
 
 for i in range(iterations):
 
-    with open(output, 'a') as f:
-        f.write('Iteration = ' + str(i) + '\n')
+    if scenario == 1:
+        with open(output, 'a') as f:
+            f.write('\nIteration = ' + str(i) + '\n')
     
-    state = Follow
+    state = 0
     
     followAction() 
 
-    while state != Done:
-
+    while state != Done: 
+        
         r = random.uniform(0.0, 1.0) 
 
         if state == Follow:
@@ -100,6 +109,10 @@ for i in range(iterations):
                 accelerateAction()
                 transitionCount[1] += 1
                 state = Accelerate
+            elif r < sum(transition_probability[1:4:2]):
+                transitionCount[3] += 1
+                state = Pull_In_Behind
+                pullInBehindAction()
             else:
                 state = Pull_Out
                 pullOutAction()
@@ -109,6 +122,14 @@ for i in range(iterations):
                 pullInAheadAction()
                 transitionCount[2] += 1
                 state = Pull_In_Ahead
+            elif r < sum(transition_probability[2:5:2]):
+                transitionCount[4] += 1
+                state = Pull_In_Behind
+                pullInBehindAction()
+            elif r < sum(transition_probability[i] for i in [2, 4, 5]):
+                transitionCount[5] += 1
+                state = Decelerate
+                decelerateAction()
             else:
                 state = Accelerate
                 accelerateAction()
@@ -122,7 +143,7 @@ for i in range(iterations):
                 state = Pull_In_Ahead
                 pullInAheadAction()
 
-        if state == Pull_In_Behind:
+        elif state == Pull_In_Behind:
             if r < transition_probability[6]:
                 followAction()
                 transitionCount[6] += 1
@@ -141,13 +162,12 @@ for i in range(iterations):
                 decelerateAction()
         
         else:
-            state = Done
+            state = 6
             doneAction()
 
             with open(output, 'a') as f:
                 f.write('\n')
-
-            break 
+ 
 
 with open(output, 'a') as f:
     f.write('\n')
